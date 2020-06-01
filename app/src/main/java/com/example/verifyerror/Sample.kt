@@ -17,6 +17,8 @@ object Sample {
      * java.lang.Object com.example.verifyerror.Sample$errorCapturingThrowable$1.invokeSuspend(java.lang.Object) failed to verify:
      * java.lang.Object com.example.verifyerror.Sample$errorCapturingThrowable$1.invokeSuspend(java.lang.Object):
      * [0x59] register v3 has type Reference: java.lang.Throwable but expected Precise Reference: kotlin.jvm.internal.Ref$ObjectRef
+     *
+     * https://youtrack.jetbrains.com/issue/KT-39298
      */
     fun errorCapturingThrowable() {
         GlobalScope.launch {
@@ -34,11 +36,14 @@ object Sample {
 
     /**
      * On Dalvik VM (i.e. pre-L devices), this generates
+     *
      * W/dalvikvm( 3892): VFY: register1 v1 type 17, wanted 5
      * W/dalvikvm( 3892): VFY:  rejecting call to Lcom/example/verifyerror/Foo;.<init> (ZIILkotlin/jvm/internal/DefaultConstructorMarker;)V
      * W/dalvikvm( 3892): VFY:  rejecting opcode 0x70 at 0x0040
      * W/dalvikvm( 3892): VFY:  rejected Lcom/example/verifyerror/Sample$errorResumeWithDefaultParameters$1;.invokeSuspend (Ljava/lang/Object;)Ljava/lang/Object;
      * W/dalvikvm( 3892): Verifier rejected class Lcom/example/verifyerror/Sample$errorResumeWithDefaultParameters$1;
+     *
+     * https://youtrack.jetbrains.com/issue/KT-35616
      */
     fun errorResumeWithDefaultParametersPreL() {
         GlobalScope.launch {

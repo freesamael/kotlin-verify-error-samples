@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Verify Error Samples</string>
+    <string name="txt_sample_1">Sample 1</string>
+    <string name="txt_sample_2">Sample 2 (pre-L only)</string>
 </resources>

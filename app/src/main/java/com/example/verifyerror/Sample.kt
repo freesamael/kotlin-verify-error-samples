@@ -1,48 +1,33 @@
 package com.example.verifyerror
 
-import android.content.Context
-import android.net.Uri
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-val sampleSupervisor = SupervisorJob()
-val sampleScope: CoroutineScope
-    get() {
-        return CoroutineScope(sampleSupervisor + Dispatchers.Default)
-    }
+object Sample {
+    private const val TAG = "Sample"
 
-fun Throwable.rethrowOnCancellation(block: ((Throwable) -> Unit)? = null) {
-    if (this is CancellationException) {
-        block?.invoke(this)
-        throw this
-    }
-}
-
-class Sample {
-
-    fun errorCapturingThrowable(appOrActivityCtx: Context, data: Uri) {
-        data.getQueryParameter("test")?.also {
-            sampleScope.launch {
-                try {
-                    iowork()
-                    withContext(Dispatchers.Main) {
-                        Log.d(TAG, "execute on main dispatcher")
-                    }
-                } catch (t: Throwable) {
-                    t.rethrowOnCancellation()
-                    withContext(Dispatchers.Main) {
-                        Log.d(TAG, "handling exception $t on main dispatcher")
-                    }
+    /**
+     * With kotlin 1.3.72 and coroutines 1.3.7, this generates
+     *
+     * java.lang.VerifyError: Verifier rejected class com.example.verifyerror.Sample$errorCapturingThrowable$1:
+     * java.lang.Object com.example.verifyerror.Sample$errorCapturingThrowable$1.invokeSuspend(java.lang.Object) failed to verify:
+     * java.lang.Object com.example.verifyerror.Sample$errorCapturingThrowable$1.invokeSuspend(java.lang.Object):
+     * [0x59] register v3 has type Reference: java.lang.Throwable but expected Precise Reference: kotlin.jvm.internal.Ref$ObjectRef
+     */
+    fun errorCapturingThrowable() {
+        GlobalScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    Log.d(TAG, "execute on IO dispatcher")
+                }
+            } catch (t: Throwable) {
+                withContext(Dispatchers.Main) {
+                    Log.d(TAG, "capture and handle $t on main dispatcher")
                 }
             }
         }
-    }
-
-    private suspend fun iowork() = withContext(Dispatchers.IO) {
-        Log.d(TAG, "execute on IO dispatcher")
-    }
-
-    companion object {
-        const val TAG = "Sample"
     }
 }
